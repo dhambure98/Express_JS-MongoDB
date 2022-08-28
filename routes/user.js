@@ -6,6 +6,7 @@ const User = require('../models/user.model')
 
 app.use(express.json())
 
+// get all users
 router.get('/', async (req, res) => {
     try {
         const users = await User.find()
@@ -15,6 +16,7 @@ router.get('/', async (req, res) => {
     }
 })
 
+// get user for id
 router.get('/:id', async (req, res) => {
     try {
         const users = await User.findById(req.params.id)
@@ -24,64 +26,69 @@ router.get('/:id', async (req, res) => {
     }
 })
 
-router.post('/', async (req, res) => {
-    const users = new User({
-        userId: req.body.userId,
-        firstName: req.body.firstName,
-        surName: req.body.surName,
-        gender: req.body.gender,
-        dateOfBirth: req.body.dateOfBirth,
-        password: req.body.password,
-        phoneNo: req.body.phoneNo,
-        email: req.body.email,
+// get user for email and password
+router.get('/:email/:password',async (req, res) =>{
+    try {
+        const register = await User.findOne({ email: req.params.email, password: req.params.password })
+        res.json(register)
+    }catch (error) {
+        res.send('Error : '+ error)
+    }
+})
+
+// save user
+router.post('/',async (req,res) => {
+    const user = new User({
+        firstName:req.body.firstName,
+        surname:req.body.surname,
+        gender:req.body.gender,
+        dateOfBirth:req.body.dateOfBirth,
+        password:req.body.password,
+        phoneNumber:req.body.phoneNumber,
+        email:req.body.email,
     })
+
     try {
-        const response = await users.save()
+        const register = await user.save()
+        res.json(register)
+    }catch (error) {
+        res.send('Error : '+ error)
+    }
+
+})
+
+// delete user for select user id
+router.delete('/:id',async (req,res) =>{
+    try {
+        const register = await User.findById(req.params.id)
+        const response = await register.remove()
         res.json(response)
-    } catch (err) {
-        res.send('Err: ' + err)
+    }catch (error) {
+        res.send('Error : '+error)
     }
 })
 
-router.delete('/:id', async (req, res) => {
+// update user for select user id
+router.put('/:id',async (req,res) =>{
     try {
-        const users = await User.findById(req.params.id)
-        const response = await users.remove()
+        const register = await User.findById(req.params.id)
+        register.firstName = req.body.firstName
+        register.surname = req.body.surname
+        register.gender = req.body.gender
+        register.dateOfBirth = req.body.dateOfBirth
+        register.password = req.body.password
+        register.phoneNumber = req.body.phoneNumber
+        register.email = req.body.email
 
-        res.json(response)
-    } catch (err) {
-        res.send('Err: ' + err)
-    }
-})
-
-router.put('/:id', async (req, res) => {
-    try {
-        const users = await User.findById(req.params.id)
-        users.userId = req.body.userId
-        users.firstName = req.body.firstName
-        users.surName = req.body.surName
-        users.gender = req.body.gender
-        users.dateOfBirth = req.body.dateOfBirth
-        users.password = req.body.password
-        users.phoneNo = req.body.phoneNo
-        users.email = req.body.email
-
-        const response = await users.save()
+        const response = await register.save()
         res.json(response)
 
-    } catch (err) {
-        res.send('Err: ' + err)
+    }catch (error) {
+        res.send('Error : '+ error)
     }
 })
 
-router.get('/login', async (req, res) => {
-    try {
-        const users = await User.findByPasswordAndEmail(req.params.email, req.params.password)
-        res.json(users)
-    } catch (err) {
-        res.send('Err: ' + err)
-    }
-})
+
 
 
 
